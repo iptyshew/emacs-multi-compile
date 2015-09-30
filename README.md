@@ -21,7 +21,7 @@ You can install `multi-compile.el` from [MELPA](http://melpa.milkbox.net/package
 (setq multi-compile-alist '(
     (rust-mode . (("rust-debug" . "cargo run")
                   ("rust-release" . "cargo run --release")
-                  ("rust-test1" . "cargo test")))
+                  ("rust-test" . "cargo test")))
     ))
 ;;(setq multi-compile-completion-system 'ido)
 (setq multi-compile-completion-system 'helm)
