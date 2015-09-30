@@ -44,7 +44,7 @@ for example:
     (c++-mode . (("cpp-run" . "make --no-print-directory -C %make-dir")))
     (rust-mode . (("rust-debug" . "cargo run")
                   ("rust-release" . "cargo run --release")
-                  ("rust-test1" . "cargo test")))
+                  ("rust-test" . "cargo test")))
     ))
 ```
 You can use filename pattern:
