@@ -2,11 +2,11 @@
 ;;
 ;; Copyright (C) 2015 Kvashnin Vladimir
 ;;
-;; Author: Kvashnin Vladimir
-;; Created: 30 Sep 2015
+;; Author: Kvashnin Vladimir <reangd@gmail.com>
+;; Created: 2015-10-01
 ;; Version: 0.1.0
-;; Keywords: tools compile
-;; URL: https://github.com/ReanGD/multi-compile
+;; Keywords: tools compile build
+;; URL: https://github.com/ReanGD/emacs-multi-compile
 ;; Package-Requires: ((emacs "24"))
 ;;
 ;; This file is not part of GNU Emacs.
@@ -34,7 +34,7 @@
 ;; M-x multi-compile-run
 ;;
 ;; For a detailed introduction see:
-;; https://github.com/ReanGD/multi-compile/blob/master/README.md
+;; https://github.com/ReanGD/emacs-multi-compile/blob/master/README.md
 ;;
 ;;; Code:
 
