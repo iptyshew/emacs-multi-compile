@@ -58,3 +58,7 @@ You can use filename pattern:
 
 - Open *.rs file
 - M-x multi-compile-run
+
+## Links
+
+[In Russian](http://reangdblog.blogspot.com/2015/10/emacs-multi-compile.html)
