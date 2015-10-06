@@ -7,7 +7,7 @@ Multi target interface to compile.
 
 ## Installation
 
-You can install `multi-compile.el` from [MELPA](http://melpa.milkbox.net/packages/) with `package.el`
+You can install `multi-compile.el` from [MELPA](https://melpa.org/) with `package.el`
 
 ```
  M-x package-install multi-compile
