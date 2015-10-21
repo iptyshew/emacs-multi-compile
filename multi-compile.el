@@ -4,7 +4,7 @@
 ;;
 ;; Author: Kvashnin Vladimir <reangd@gmail.com>
 ;; Created: 2015-10-01
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; Keywords: tools compile build
 ;; URL: https://github.com/ReanGD/emacs-multi-compile
 ;; Package-Requires: ((emacs "24"))
@@ -35,7 +35,7 @@
 ;;
 ;; Configure
 ;; ----
-;; 
+;;
 ;; Sample config for Rustlang:
 ;;  ;;; init.el --- user init file
 ;;     (require 'multi-compile)
@@ -170,6 +170,11 @@
        (t (funcall multi-compile-completion-system prompt choices)))
       compile-list))))
 
+(defun multi-compile--user-command (command)
+  "Read custom compile command"
+  (interactive "sCompile command: ")
+  (compilation-start command))
+
 ;;;###autoload
 (defun multi-compile-run ()
   "Choice target and start compile."
@@ -177,14 +182,19 @@
   (let ((filename (buffer-file-name))
         (is-not-call t))
     (if (not filename)
-        (error "cannot get filename."))
-    (dolist (mode-item multi-compile-alist)
-      (when (and is-not-call
-                 (multi-compile--check-mode (car mode-item) filename))
-        (setq is-not-call nil)
-        (compilation-start
-         (multi-compile--apply-template
-          (multi-compile--choice-compile-command (cdr mode-item))))))))
+        (call-interactively 'multi-compile--user-command)
+      (progn
+        (dolist (mode-item multi-compile-alist)
+          (when (and is-not-call
+                     (multi-compile--check-mode (car mode-item) filename))
+            (setq is-not-call nil)
+            (compilation-start
+             (multi-compile--apply-template
+              (multi-compile--choice-compile-command (cdr mode-item))))
+            ))
+        (if is-not-call
+            (call-interactively 'multi-compile--user-command))
+        ))))
 
 (provide 'multi-compile)
 
