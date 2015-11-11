@@ -137,7 +137,7 @@
 (defun multi-compile--apply-template (format-string)
   (dolist (template multi-compile-template)
     (while (string-match (car template) format-string)
-      (let ((new-text (eval (cdr template))))
+      (let ((new-text (save-match-data (eval (cdr template)))))
         (setq format-string
               (replace-match
                (if new-text new-text
@@ -152,23 +152,25 @@
         (string-match mode-pattern filename))))
 
 (defun multi-compile--choice-compile-command (compile-list)
-  (let ((prompt "action: ")
-        (choices (mapcar #'car compile-list)))
-    (cdr
-     (assoc
-      (cond
-       ((eq multi-compile-completion-system 'ido)
-        (ido-completing-read prompt choices))
-       ((eq multi-compile-completion-system 'default)
-        (completing-read prompt choices))
-       ((eq multi-compile-completion-system 'helm)
-        (if (fboundp 'helm-comp-read)
-            (helm-comp-read prompt choices
-                            :candidates-in-buffer t
-                            :must-match 'confirm)
-          (user-error "Please install helm from https://github.com/emacs-helm/helm")))
-       (t (funcall multi-compile-completion-system prompt choices)))
-      compile-list))))
+  (if (= 1 (length compile-list))
+      (cdar compile-list)
+    (let ((prompt "action: ")
+          (choices (mapcar #'car compile-list)))
+      (cdr
+       (assoc
+        (cond
+         ((eq multi-compile-completion-system 'ido)
+          (ido-completing-read prompt choices))
+         ((eq multi-compile-completion-system 'default)
+          (completing-read prompt choices))
+         ((eq multi-compile-completion-system 'helm)
+          (if (fboundp 'helm-comp-read)
+              (helm-comp-read prompt choices
+                              :candidates-in-buffer t
+                              :must-match 'confirm)
+            (user-error "Please install helm from https://github.com/emacs-helm/helm")))
+         (t (funcall multi-compile-completion-system prompt choices)))
+        compile-list)))))
 
 (defun multi-compile--user-command (command)
   "Read custom compile command"
