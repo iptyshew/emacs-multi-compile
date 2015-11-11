@@ -137,7 +137,7 @@
 (defun multi-compile--apply-template (format-string)
   (dolist (template multi-compile-template)
     (while (string-match (car template) format-string)
-      (let ((new-text (eval (cdr template))))
+      (let ((new-text (save-match-data (eval (cdr template)))))
         (setq format-string
               (replace-match
                (if new-text new-text
