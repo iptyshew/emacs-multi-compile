@@ -4,7 +4,7 @@
 ;;
 ;; Author: Kvashnin Vladimir <reangd@gmail.com>
 ;; Created: 2015-10-01
-;; Version: 0.2.0
+;; Version: 0.3.0
 ;; Keywords: tools compile build
 ;; URL: https://github.com/ReanGD/emacs-multi-compile
 ;; Package-Requires: ((emacs "24"))
