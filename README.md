@@ -51,7 +51,14 @@ You can use filename pattern:
 
 ```lisp
 (setq multi-compile-alist '(
-    ("\\.txt\\'" . (("text-filename" . "echo %file-name")))
+    ("\\.txt\\'" . (("text-filename" . "echo %file-name")))))
+```
+
+Or add a pattern for all files:
+
+```lisp
+(setq multi-compile-alist '(
+     ("\\.*" . (("any-file-command" . "echo %file-name")))))
 ```
 
 ## Usage

@@ -63,7 +63,11 @@
 ;;
 ;; You can use filename pattern:
 ;; (setq multi-compile-alist '(
-;;     ("\\.txt\\'" . (("text-filename" . "echo %file-name")))
+;;     ("\\.txt\\'" . (("text-filename" . "echo %file-name")))))
+;;
+;; Or add a pattern for all files:
+;; (setq multi-compile-alist '(
+;;     ("\\.*" . (("any-file-command" . "echo %file-name")))))
 ;;
 ;; You can use different backends for the menu:
 ;; (setq multi-compile-completion-system 'ido)
@@ -144,12 +148,24 @@
                  (concat "not-found-" (substring (car template) 1)))
                t nil format-string)))))
   format-string)
+
 (defun multi-compile--check-mode (mode-pattern filename)
   (or
    (and (symbolp mode-pattern)
         (eq mode-pattern major-mode))
    (and (stringp mode-pattern)
         (string-match mode-pattern filename))))
+
+(defun multi-compile--fill-command-list (filename)
+  "Fill command list from settings"
+  (let (command-list '())
+    (dolist (mode-item multi-compile-alist)
+      (if (multi-compile--check-mode (car mode-item) filename)
+          (setq command-list
+                (append command-list (cdr mode-item)))
+        )
+      )
+    command-list))
 
 (defun multi-compile--choice-compile-command (compile-list)
   (let ((prompt "action: ")
@@ -175,26 +191,23 @@
   (interactive "sCompile command: ")
   (compilation-start command))
 
+
 ;;;###autoload
 (defun multi-compile-run ()
   "Choice target and start compile."
   (interactive)
   (let ((filename (buffer-file-name))
-        (is-not-call t))
+        (command-list '()))
     (if (not filename)
         (call-interactively 'multi-compile--user-command)
       (progn
-        (dolist (mode-item multi-compile-alist)
-          (when (and is-not-call
-                     (multi-compile--check-mode (car mode-item) filename))
-            (setq is-not-call nil)
+        (setq command-list (multi-compile--fill-command-list filename))
+        (if command-list
             (compilation-start
              (multi-compile--apply-template
-              (multi-compile--choice-compile-command (cdr mode-item))))
-            ))
-        (if is-not-call
-            (call-interactively 'multi-compile--user-command))
-        ))))
+              (multi-compile--choice-compile-command command-list)))
+          (call-interactively 'multi-compile--user-command)
+          )))))
 
 (provide 'multi-compile)
 
