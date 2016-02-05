@@ -198,7 +198,7 @@
 (defun multi-compile-run ()
   "Choice target and start compile."
   (interactive)
-  (let ((filename (buffer-file-name))
+  (let ((filename (if (stringp buffer-file-name) buffer-file-name (buffer-name)))
         (command-list '()))
     (if (not filename)
         (call-interactively 'multi-compile--user-command)
