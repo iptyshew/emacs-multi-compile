@@ -158,7 +158,7 @@
 
 (defun multi-compile--fill-command-list (filename)
   "Fill command list from settings"
-  (let (command-list '())
+  (let ((command-list '()))
     (dolist (mode-item multi-compile-alist)
       (if (multi-compile--check-mode (car mode-item) filename)
           (setq command-list
