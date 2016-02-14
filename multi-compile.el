@@ -194,11 +194,11 @@
 (defun multi-compile--get-command-template ()
   (let ((filename (if (stringp buffer-file-name) buffer-file-name (buffer-name))))
     (if (not filename)
-        (read-input "Compile command: ")
+        (read-string "Compile command: ")
       (let ((command-list (multi-compile--fill-command-list filename)))
         (if command-list
             (multi-compile--choice-compile-command command-list)
-          (read-input "Compile command: "))))))
+          (read-string "Compile command: "))))))
 
 ;;;###autoload
 (defun multi-compile-locate-file-dir (name)
