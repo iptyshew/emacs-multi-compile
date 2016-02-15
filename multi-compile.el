@@ -4,7 +4,7 @@
 ;;
 ;; Author: Kvashnin Vladimir <reangd@gmail.com>
 ;; Created: 2015-10-01
-;; Version: 0.4.0
+;; Version: 0.5.0
 ;; Keywords: tools compile build
 ;; URL: https://github.com/ReanGD/emacs-multi-compile
 ;; Package-Requires: ((emacs "24"))
@@ -105,7 +105,9 @@
           (cons
            (choice :tag "Key"
                    (regexp :tag "Filename or buffer pattern")
-                   (function :tag "Major-mode"))
+                   (function :tag "Major-mode")
+                   (sexp :tag "Expression")
+                   )
            (repeat :tag "Settings"
                    (choice :tag "Type"
                            (cons :tag "Default compilation directory"
@@ -114,7 +116,7 @@
                            (list :tag "Set compilation directory"
                                  (string :tag "Menu item")
                                  (string :tag "Command")
-                                 (function :tag "Function returns a compilation root"))
+                                 (sexp :tag "Expression returns a compilation root"))
                            ))))
   :group 'multi-compile)
 
@@ -142,6 +144,7 @@
 
 
 (defun multi-compile--fill-template (format-string)
+  "Apply multi-compile-template to FORMAT-STRING."
   (dolist (template multi-compile-template)
     (while (string-match (car template) format-string)
       (let ((new-text (save-match-data (eval (cdr template)))))
@@ -153,14 +156,17 @@
   format-string)
 
 (defun multi-compile--check-mode (mode-pattern filename)
+  "Check that the MODE-PATTERN and the FILENAME match."
   (or
    (and (symbolp mode-pattern)
         (eq mode-pattern major-mode))
+   (and (listp mode-pattern)
+        (eval-expression mode-pattern))
    (and (stringp mode-pattern)
         (string-match mode-pattern filename))))
 
 (defun multi-compile--fill-command-list (filename)
-  "Fill command list from settings"
+  "Fill command list from settings for the FILENAME."
   (let ((command-list '()))
     (dolist (mode-item multi-compile-alist)
       (if (multi-compile--check-mode (car mode-item) filename)
@@ -171,6 +177,7 @@
     command-list))
 
 (defun multi-compile--choice-compile-command (compile-list)
+  "Choice compile command from COMPILE-LIST."
   (if (= 1 (length compile-list))
       (cdar compile-list)
     (let ((prompt "action: ")
@@ -192,6 +199,7 @@
         compile-list)))))
 
 (defun multi-compile--get-command-template ()
+  "Get command pattern selected by the user."
   (let ((filename (if (stringp buffer-file-name) buffer-file-name (buffer-name))))
     (if (not filename)
         (read-string "Compile command: ")
@@ -202,8 +210,8 @@
 
 ;;;###autoload
 (defun multi-compile-locate-file-dir (name)
-  (lambda ()
-    (locate-dominating-file (buffer-file-name) name)))
+  "Look up the directory hierarchy from current file for a directory containing file NAME."
+  (locate-dominating-file (buffer-file-name) name))
 
 ;;;###autoload
 (defun multi-compile-run ()
@@ -211,7 +219,7 @@
   (interactive)
   (let* ((template (multi-compile--get-command-template))
          (command (or (car-safe template) template))
-         (default-directory (if (listp template) (funcall (cadr template)) default-directory)))
+         (default-directory (if (listp template) (eval-expression (cadr template)) default-directory)))
     (compilation-start
      (multi-compile--fill-template command))))
 
