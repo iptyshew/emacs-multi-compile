@@ -115,3 +115,5 @@ Where:
 ## Links
 
 [In Russian](http://reangdblog.blogspot.com/2015/10/emacs-multi-compile.html)
+
+[In Russian (Part 2)](http://reangdblog.blogspot.com/2016/02/emacs-multi-compile.html)
