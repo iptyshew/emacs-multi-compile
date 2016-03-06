@@ -10,8 +10,10 @@ Multi target interface to compile.
 You can install `multi-compile.el` from [MELPA](https://melpa.org/) with `package.el`
 
 ```
- M-x package-install multi-compile
+ M-x package-install RET multi-compile RET
 ```
+
+Or drop `multi-compile.el` and [`dash.el`](https://github.com/magnars/dash.el) into your load path.
 
 ## Common settings format:
 ```lisp

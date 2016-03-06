@@ -1,13 +1,14 @@
 ;;; multi-compile.el --- Multi target interface to compile. -*- lexical-binding: t; -*-
 ;;
-;; Copyright (C) 2015 Kvashnin Vladimir
+;; Copyright (C) 2015-2016 Kvashnin Vladimir
 ;;
 ;; Author: Kvashnin Vladimir <reangd@gmail.com>
 ;; Created: 2015-10-01
-;; Version: 0.5.0
+;; Version: 0.6.0
+;; Package-Version: 20160215.1219
 ;; Keywords: tools compile build
 ;; URL: https://github.com/ReanGD/emacs-multi-compile
-;; Package-Requires: ((emacs "24"))
+;; Package-Requires: ((emacs "24") (dash "2.12.1"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -85,6 +86,7 @@
 ;; https://github.com/ReanGD/emacs-multi-compile/blob/master/README.md
 ;;
 ;;; Code:
+(require 'dash)
 (require 'compile)
 
 (defgroup multi-compile nil
@@ -142,6 +144,41 @@
           (function :tag "Custom function"))
   :group 'multi-compile)
 
+(defcustom multi-compile-history '()
+  "Operations history ."
+  :type 'list
+  :group 'multi-compile)
+
+(defcustom multi-compile-history-length 50
+  "The maximum size of the history."
+  :type 'integer
+  :group 'multi-compile)
+
+(defcustom multi-compile-history-file
+  (expand-file-name "multi-compile.cache" user-emacs-directory)
+  "The name of multi-compile cache file."
+  :type 'string
+  :group 'multi-compile)
+
+(defun multi-compile--add-to-history (item)
+  "Add ITEM to history and save history to file."
+  (setq multi-compile-history
+        (-take multi-compile-history-length
+               (cons item
+                     (-remove-item item multi-compile-history))))
+  (when (file-writable-p multi-compile-history-file)
+    (with-temp-file multi-compile-history-file
+      (insert (let (print-length) (prin1-to-string multi-compile-history)))))
+  item)
+
+(defun multi-compile--load-hostory ()
+  "Load history from file."
+  (with-demoted-errors
+      "Error during file deserialization: %S"
+      (when (file-exists-p multi-compile-history-file)
+        (with-temp-buffer
+          (insert-file-contents multi-compile-history-file)
+          (setq multi-compile-history (read (buffer-string)))))))
 
 (defun multi-compile--fill-template (format-string)
   "Apply multi-compile-template to FORMAT-STRING."
@@ -180,22 +217,24 @@
   "Choice compile command from COMPILE-LIST."
   (if (= 1 (length compile-list))
       (cdar compile-list)
-    (let ((prompt "action: ")
-          (choices (mapcar #'car compile-list)))
+    (let* ((prompt "action: ")
+           (keys (mapcar #'car compile-list))
+           (choices (-union (-intersection multi-compile-history keys) keys)))
       (cdr
        (assoc
-        (cond
-         ((eq multi-compile-completion-system 'ido)
-          (ido-completing-read prompt choices))
-         ((eq multi-compile-completion-system 'default)
-          (completing-read prompt choices))
-         ((eq multi-compile-completion-system 'helm)
-          (if (fboundp 'helm-comp-read)
-              (helm-comp-read prompt choices
-                              :candidates-in-buffer t
-                              :must-match 'confirm)
-            (user-error "Please install helm from https://github.com/emacs-helm/helm")))
-         (t (funcall multi-compile-completion-system prompt choices)))
+        (multi-compile--add-to-history
+         (cond
+          ((eq multi-compile-completion-system 'ido)
+           (ido-completing-read prompt choices))
+          ((eq multi-compile-completion-system 'default)
+           (completing-read prompt choices))
+          ((eq multi-compile-completion-system 'helm)
+           (if (fboundp 'helm-comp-read)
+               (helm-comp-read prompt choices
+                               :candidates-in-buffer t
+                               :must-match 'confirm)
+             (user-error "Please install helm from https://github.com/emacs-helm/helm")))
+          (t (funcall multi-compile-completion-system prompt choices))))
         compile-list)))))
 
 (defun multi-compile--get-command-template ()
@@ -222,6 +261,8 @@
          (default-directory (if (listp template) (eval-expression (cadr template)) default-directory)))
     (compilation-start
      (multi-compile--fill-template command))))
+
+(multi-compile--load-hostory)
 
 (provide 'multi-compile)
 
