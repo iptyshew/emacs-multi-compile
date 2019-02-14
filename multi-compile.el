@@ -75,6 +75,8 @@
 ;; or
 ;; (setq multi-compile-completion-system 'helm)
 ;; or
+;; (setq multi-compile-completion-system 'ivy)
+;; or
 ;; (setq multi-compile-completion-system 'default)
 ;;
 ;; Usage
@@ -140,6 +142,7 @@
   :type '(radio
           (const :tag "Ido" ido)
           (const :tag "Helm" helm)
+          (const :tag "Ivy" ivy)
           (const :tag "Default" default)
           (function :tag "Custom function"))
   :group 'multi-compile)
@@ -226,6 +229,8 @@
          (cond
           ((eq multi-compile-completion-system 'ido)
            (ido-completing-read prompt choices))
+          ((eq multi-compile-completion-system 'ivy)
+           (ivy-completing-read prompt choices))
           ((eq multi-compile-completion-system 'default)
            (completing-read prompt choices))
           ((eq multi-compile-completion-system 'helm)
