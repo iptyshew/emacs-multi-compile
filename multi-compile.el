@@ -261,11 +261,19 @@
 (defun multi-compile-run ()
   "Choice target and start compile."
   (interactive)
-  (let* ((template (multi-compile--get-command-template))
-         (command (or (car-safe template) template))
-         (default-directory (if (listp template) (eval-expression (cadr template)) default-directory)))
+  (let ((template (multi-compile--get-command-template)))
+    (setq multi-compile-command (or (car-safe template) template))
+    (setq multi-compile-directory (if (listp template) (eval-expression (cadr template)) default-directory))
+    (setq default-directory multi-compile-directory)
     (compilation-start
-     (multi-compile--fill-template command))))
+     (multi-compile--fill-template multi-compile-command))))
+
+;;;###autoload
+(defun multi-compile-rerun()
+  (interactive)
+  (setq default-directory multi-compile-directory)
+  (compilation-start
+     (multi-compile--fill-template multi-compile-command)))
 
 (multi-compile--load-hostory)
 
