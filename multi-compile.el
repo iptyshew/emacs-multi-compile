@@ -264,16 +264,16 @@
   (let ((template (multi-compile--get-command-template)))
     (setq multi-compile-command (or (car-safe template) template))
     (setq multi-compile-directory (if (listp template) (eval-expression (cadr template)) default-directory))
-    (setq default-directory multi-compile-directory)
-    (compilation-start
-     (multi-compile--fill-template multi-compile-command))))
+    (let ((default-directory multi-compile-directory))
+      (compilation-start
+       (multi-compile--fill-template multi-compile-command)))))
 
 ;;;###autoload
 (defun multi-compile-rerun()
   (interactive)
-  (setq default-directory multi-compile-directory)
-  (compilation-start
-     (multi-compile--fill-template multi-compile-command)))
+  (let ((default-directory multi-compile-directory))
+    (compilation-start
+     (multi-compile--fill-template multi-compile-command))))
 
 (multi-compile--load-hostory)
 
